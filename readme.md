@@ -5,6 +5,8 @@ Multi-agent control is a central theme in the Cyber-Physical Systems (CPS). Howe
 
 ## Method
 
+The proposed DePT tokenize the state as spatial-temporal local features at each agent, and add physical-aware delayed propagation cone shaped prior into the attention map of the transformers. The DePT is both global view method -- it enjoys better Markovian state and longer view for better predictive control, and avoids the large state/action space issue that bothers traditional centralized methods -- the state/action space size is constant w.r.t. the number of tokens.
+
 ![flow](figs/dept_pipeline.png)
 
 ![scenario](figs/scenario.PNG)
@@ -113,7 +115,12 @@ rm -rf records
 # Citation
 
 ```
-comming soon.
+@article{zheng2021delayed,
+  title={Delayed Propagation Transformer: A Universal Computation Engine towards Practical Control in Cyber-Physical Systems},
+  author={Zheng, Wenqing and Guo, Qiangqiang and Yang, Hao and Wang, Peihao and Wang, Zhangyang},
+  journal={arXiv preprint arXiv:2110.15926},
+  year={2021}
+}
 ```
 
 
