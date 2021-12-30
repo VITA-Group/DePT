@@ -67,6 +67,11 @@ class DelayedPropagationTransformer(nn.Module):
         self.init(args,**args)
 
     def init(self, args, dim_feat=None, n_blocks=None, n_head=None, dim_k=None, dim_v=None, dim_model=None, dim_ffn=None, dims_flowSpeed=None, dim_pe=None, dim_te=None, scale_emb=None, dropout=None, use_attn_residual=None, n_actions=None, output_hidden=None, Tmax=None, ablation1_cone=None, only_1cone=None, **w):
+        # N_nodes: only count "intersections" as nodes.
+        # ID2Pos: a tensor, shape: [N_nodes, 2]
+        # dim_ffn: hidden dims in feedforward
+        # dims_flowSpeed: dims for MLP for avg_flow_speed_prediction. It's a list of (n+1) ints: input + (n-1) hiddens + output dims.
+
         super().__init__()
         self.n_actions = n_actions
         self.output_hidden = output_hidden
@@ -221,11 +226,20 @@ class coneDecay(nn.Module):
 
 
     def forward(self,nodeID2,timeID2,features,posDiff,timeDiff):
+
         # nodePos:          [batch_size, num_tokens, 2]
         # timeFineGrained:  [batch_size, num_tokens]
         # features:         [batch_size, num_tokens, dim_feat]
         # return attn_cone: [batch_size, n_head, num_tokens, num_tokens]
+        # nodeID:               [batch_size, num_tokens]
+        # timeCoarseGrained:    [batch_size, num_tokens]
+        # nodeID2:              [batch_size, num_tokens, num_tokens, 2]
+        # timeID2:              [batch_size, num_tokens, num_tokens, 2]
+        # posDiff:              [batch_size, num_tokens, num_tokens]
+        # timeDiff:             [batch_size, num_tokens, num_tokens]
+
         # return:    [batch_size, num_tokens, num_tokens]
+
         speed_lut = self.speedStLUT(nodeID2, timeID2)
         speed_o = self.vFunc_o(features)
         speed_d = self.vFunc_d(features)
@@ -395,6 +409,9 @@ class DecayFun(nn.Module):
 
 
     def forward(self, x):
+        
+        # x:        whatever shape
+        # return:   same as input
         res = x*0
         for i in range(self.N_decayer):
             d = self.decayers[i]

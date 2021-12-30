@@ -38,12 +38,14 @@ class Prep(nn.Module):
         x = eval('x'+self.prep_str)
         return x
 
+
 def getMLP(neurons, activation=nn.GELU, bias=True, dropout=0.1, last_dropout=False, normfun='layernorm',prep_str=''):
     nn_list = [Prep(prep_str)]
     if len(neurons) in [0,1]:
         return nn.Identity()
     if len(neurons) == 2:
         return nn.Linear(*neurons)
+
     nn_list = []
     n = len(neurons)-1
     for i in range(n-1):
@@ -51,11 +53,23 @@ def getMLP(neurons, activation=nn.GELU, bias=True, dropout=0.1, last_dropout=Fal
             norm = nn.LayerNorm(neurons[i+1])
         elif normfun=='batchnorm':
             norm = nn.BatchNorm1d(neurons[i+1])
-        nn_list.extend([nn.Linear(neurons[i], neurons[i+1], bias=bias), norm, nn.Dropout(dropout)])
+        else:
+            norm = nn.Identity()
+        nn_list.extend([nn.Linear(neurons[i], neurons[i+1], bias=bias), norm, activation(), nn.Dropout(dropout)])
+    
     nn_list.extend([nn.Linear(neurons[n-1], neurons[n], bias=bias)])
     if last_dropout:
         nn_list.extend([nn.Dropout(dropout)])
-    return nn.Sequential(*nn_list)
+    mlp = nn.Sequential(*nn_list)
+    def _init_weights(self):
+        nn.init.xavier_uniform_(self.fc1.weight)
+        nn.init.xavier_uniform_(self.fc2.weight)
+        nn.init.normal_(self.fc1.bias, std=1e-6)
+        nn.init.normal_(self.fc2.bias, std=1e-6)
+
+    return mlp
+
+
 
 def shuffle_Xy(X,y):
     # input are all list, difficult to use index
@@ -114,6 +128,37 @@ def get_infinite_iter(dataset, batch_size=1,num_workers=2,shuffle=True,sampler=N
 
 
 
+
+def plot_ci(arr, vx=[], is_std=True, ttl='', xlb='',ylb='',semilogy=False, viz_un_log=False):
+    arr = np.asarray(arr)
+    if len(arr.shape)==1:  arr = arr.reshape(1,-1)
+    rdcolor = plt.get_cmap('viridis')(np.random.rand())  # 随机颜色
+
+    mean = np.mean(arr,axis=0)
+    if is_std:
+        ci = np.std(arr,axis=0)
+        lowci = mean-ci*is_std
+        hici = mean+ci*is_std
+    else:
+        lowci = np.min(arr,axis=0)
+        hici = np.max(arr,axis=0)
+    # plt.plot(mean, color = '#539caf')
+    if viz_un_log:
+        mean=np.exp(mean)
+        lowci=np.exp(lowci)
+        hici=np.exp(hici)
+    if vx == []:
+        vx_=np.arange(len(mean))
+    if semilogy:
+        plt.semilogy(vx_, mean, color = rdcolor)
+    else:
+        plt.plot(vx_, mean, color = rdcolor)
+    plt.fill_between(vx_, lowci, hici, color = rdcolor, alpha = 0.4)
+    plt.xlabel(xlb)
+    plt.ylabel(ylb)
+    if list(vx): plt.xticks(vx)
+    plt.title(ttl)
+    return
 
 
 
@@ -263,6 +308,18 @@ def bestGPU(gpu_verbose=True, **w):
 
     return int(best)
 
+
+
+def lp(fname):
+    with open(fname,'rb') as f:
+        dic = pickle.load(f)
+    return dic
+
+
+def sp(fname,dic):
+    with open(fname,'wb') as f:
+        pickle.dump(dic, f)
+    return
 
 
 
