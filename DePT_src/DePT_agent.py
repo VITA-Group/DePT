@@ -24,6 +24,7 @@ class DePTAgent(Agent):
         dic_path=None, 
         cnt_round=None,
         best_round=None, bar_round=None,intersection_id="0"):
+
         super(DePTAgent, self).__init__(
             dic_agent_conf, dic_traffic_env_conf, dic_path,intersection_id)
         self.assigned_total_cnt = dic_agent_conf['RUN_COUNTS']
@@ -68,6 +69,7 @@ class DePTAgent(Agent):
             load_cone(self.q_network.cone, which_roadmap, self.args_cacot['n_head'])
 
     def prepare_Xs_Y(self, memory, dic_exp_conf):
+
         ind_end = len(memory)
         ind_sta = max(0, ind_end - self.dic_agent_conf["MAX_MEMORY_LEN"])
         memory_after_forget = memory[ind_sta: ind_end]
@@ -236,11 +238,6 @@ class DePTAgent(Agent):
 
 
 
-
-
-
-
-
     def convert_state_to_input_1sample(self,state_ns):
         
         # return: [N_nodes, nodeID + timeFineGrained + lane_num_vehicle (12 dims) + cur_phase (int)]
@@ -333,7 +330,6 @@ def load_colight(colight_model_name):
     print('\n\n----- ›››››››  LOAD colight teacher success!\n')
 
     return colight
-
 
 
 def time_expand_reverse(bx, idx_list, memLen, _range=None):

@@ -139,6 +139,7 @@ class Updater_DePT:
         :return: a list of samples with fixed indexes
         '''
 
+
         sample_set = []
         try:
             if self.dic_exp_conf["PRETRAIN"]:
@@ -171,6 +172,7 @@ class Updater_DePT:
                     sample_set += cur_round_sample_set
             except EOFError:
                 pass
+
         except Exception as e:
             error_dir = os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"]).replace("records", "errors")
             if not os.path.exists(error_dir):
@@ -285,6 +287,7 @@ if __name__=="__main__":
         "DEBUG": False,
         "EARLY_STOP": True
     }
+
 
     dic_traffic_env_conf  = {
 
@@ -405,6 +408,7 @@ if __name__=="__main__":
             "PATH_TO_DATA": "data/test/",
             "PATH_TO_ERROR": "error/test/"
         }
+
 
     up = Updater(0, dic_agent_conf, dic_exp_conf, dic_traffic_env_conf, dic_path)
 
